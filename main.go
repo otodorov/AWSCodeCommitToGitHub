@@ -56,7 +56,12 @@ func main() {
 		fmt.Printf("Cannot %s\n", err)
 		return
 	}
-	defer conf.Close()
+
+	defer func() {
+		if err := conf.Close(); err != nil {
+			fmt.Printf("Can't close configFile: %s", err)
+		}
+	}()
 
 	// Decode the YAML file
 	dec := yaml.NewDecoder(conf)
@@ -134,7 +139,9 @@ func main() {
 				)
 
 				fmt.Println(strings.Repeat("=", 100))
-				os.RemoveAll(repoName)
+				if err = os.RemoveAll(repoName); err != nil {
+					fmt.Printf("Cannot delete folder %s: %s", repoName, err)
+				}
 			}
 		}()
 	}

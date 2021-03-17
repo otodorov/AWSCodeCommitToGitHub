@@ -152,7 +152,10 @@ func gitRepo(url, user, pass, repoName, description, branch, message, author, em
 		fmt.Println(cd)
 	}
 
-	os.RemoveAll(".git")
+	if err := os.RemoveAll(".git"); err != nil {
+		fmt.Printf("Cannot delete folder %s: %s", repoName, err)
+	}
+
 	githubRepo := gitRemoteAddOriginURL("./", url)
 	gitAdd(githubRepo)
 	gitCommit(githubRepo, message, author, email)
