@@ -3,7 +3,7 @@ GitHub: ### Used to Create repositories in GitHub and push the code
   username: <username>
   password: <password>
   private: true ### Change repository visibility
-  threads: 3 ### How many repositories will be migrated simultaneously
+  threads: 1 ### How many repositories will be migrated simultaneously
   commitMsg:
     name: <Name>
     email: <email>
