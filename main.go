@@ -102,7 +102,7 @@ func main() {
 	// awsRepoSlice := []string{"emp_terraform_security_group"}
 
 	// Uncomment following two lines to delete repositories defined in githubDeleteRepos.go -> awsRepoSlice
-	// githubDeleteRepos(configFile.GitHub.Pass)
+	// githubDeleteRepos(configFile.GitHub.Pass, awsRepoSlice)
 	// return
 
 	wg.Add(configFile.GitHub.Xthreads)

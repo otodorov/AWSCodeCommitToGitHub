@@ -9,10 +9,10 @@ import (
 )
 
 // Used to delete list of repositories from GitHub
-func githubDeleteRepos(gat string) {
+func githubDeleteRepos(gat string, awsRepoSlice []string) {
 
 	// List of repositories that has to be deleted
-	awsRepoSlice := []string{"AWS_Ansible", "AWS_CodeDeploy"}
+	// awsRepoSlice = []string{"AWS_Ansible", "AWS_CodeDeploy"}
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
