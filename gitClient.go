@@ -143,11 +143,7 @@ func gitPush(repo *git.Repository, repoName, user, password, branch, url string)
 	fmt.Printf("Pushing repo %q to GitHub\n", repoName)
 }
 
-func gitRepo(url, user, pass, repoName, description, branch, message, author, email string, private bool) {
-	if err := githubCreateRepo(pass, repoName, description, branch, private); err != nil {
-		return
-	}
-
+func gitRepo(url, user, pass, repoName, branch, message, author, email string, private bool) {
 	if cd := os.Chdir(repoName); cd != nil {
 		fmt.Println(cd)
 	}

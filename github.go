@@ -30,7 +30,6 @@ func githubCreateRepo(gitPass, repo, desc, branch string, private bool) error {
 	_, _, err = client.Repositories.Create(ctx, "", gitRepo)
 	if err != nil {
 		fmt.Printf("!!! %q alredy exist in GitHub !!!\n", repo)
-		fmt.Println(err)
 		fmt.Println("Skipping...")
 	} else {
 		fmt.Printf("Creating %q repository in GitHub\n", repo)

@@ -108,6 +108,7 @@ func main() {
 	wg.Add(configFile.GitHub.Xthreads)
 	for i := 0; i < configFile.GitHub.Xthreads; i++ {
 		go func() {
+		Loop:
 			for {
 				repoName, ok := <-ch
 				if !ok { // if there is nothing to do and the channel has been closed then end the goroutine
@@ -117,6 +118,15 @@ func main() {
 				codecommitRepoURL := fmt.Sprintf(AWSURL, configFile.AWSRegion, repoName)
 				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
+
+				if err := githubCreateRepo(
+					configFile.GitHub.Pass,
+					repoName,
+					*description,
+					branch,
+					configFile.GitHub.Private); err != nil {
+					continue Loop
+				}
 
 				gitClone(
 					configFile.AWSCodeCommit.User,
@@ -130,7 +140,6 @@ func main() {
 					configFile.GitHub.User,
 					configFile.GitHub.Pass,
 					repoName,
-					*description,
 					branch,
 					message,
 					configFile.GitHub.Commit.Name,
