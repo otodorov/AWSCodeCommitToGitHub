@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/google/go-github/github"
@@ -31,8 +32,10 @@ func githubCreateRepo(gitPass, repo, desc, branch string, private bool) error {
 	if err != nil {
 		fmt.Printf("!!! %q alredy exist in GitHub !!!\n", repo)
 		fmt.Println("Skipping...")
+		fmt.Println(strings.Repeat("=", 100))
 	} else {
 		fmt.Printf("Creating %q repository in GitHub\n", repo)
+		fmt.Println(strings.Repeat("=", 100))
 	}
 	return err
 }

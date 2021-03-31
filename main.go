@@ -105,6 +105,7 @@ func main() {
 	// githubDeleteRepos(configFile.GitHub.Pass, awsRepoSlice)
 	// return
 
+	fmt.Println(strings.Repeat("=", 100))
 	wg.Add(configFile.GitHub.Xthreads)
 	for i := 0; i < configFile.GitHub.Xthreads; i++ {
 		go func() {
@@ -147,7 +148,6 @@ func main() {
 					configFile.GitHub.Private,
 				)
 
-				fmt.Println(strings.Repeat("=", 100))
 				if err = os.RemoveAll(repoName); err != nil {
 					fmt.Printf("Cannot delete folder %s: %s", repoName, err)
 				}
