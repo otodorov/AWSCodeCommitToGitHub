@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"unicode"
@@ -42,12 +43,13 @@ func main() {
 	)
 
 	var (
-		conf *os.File
-		pwd  string
-		dir  string
-		ch   = make(chan string, 50)
-		wg   sync.WaitGroup
-		err  error
+		conf    *os.File
+		pwd     string
+		dir     string
+		repoDir string
+		ch      = make(chan string)
+		wg      sync.WaitGroup
+		err     error
 	)
 
 	// Read config.yml file
@@ -57,6 +59,7 @@ func main() {
 		return
 	}
 
+	// Handle the configFile state
 	defer func() {
 		if err := conf.Close(); err != nil {
 			fmt.Printf("Can't close configFile: %s", err)
@@ -71,7 +74,7 @@ func main() {
 		return
 	}
 
-	// Create temp dir for `git clone`
+	// Get current folder
 	if pwd, err = os.Getwd(); err != nil {
 		fmt.Println(err)
 	}
@@ -83,21 +86,25 @@ func main() {
 	// Split string
 	pwdS := strings.FieldsFunc(pwd, file)
 	currentFolder := pwdS[len(pwdS)-1]
+
+	// Create temp dir for `git clone`
 	if dir, err = os.MkdirTemp(os.TempDir(), currentFolder+"-"); err != nil {
 		fmt.Println(err)
 	}
 	defer os.RemoveAll(dir)
 
-	if cd := os.Chdir(dir); cd != nil {
-		fmt.Println(cd)
+	if err := os.Chdir(dir); err != nil {
+		fmt.Println(err)
 	}
 
+	// Create connection to AWS
 	ctx, cfg := awsClient(
 		configFile.AWSIAMAccesskeys.Access_key_id,
 		configFile.AWSIAMAccesskeys.Secret_access_key,
 		configFile.AWSRegion,
 	)
 
+	// List of all AWS CodeCommit repositories
 	awsRepoSlice := awsListRepositories(ctx, cfg)
 	// awsRepoSlice := []string{"emp_terraform_security_group"}
 
@@ -120,6 +127,10 @@ func main() {
 				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
 
+				if repoDir, err = filepath.Abs(branch); err != nil {
+					fmt.Println(err)
+				}
+
 				if err := githubCreateRepo(
 					configFile.GitHub.Pass,
 					repoName,
@@ -133,7 +144,7 @@ func main() {
 					configFile.AWSCodeCommit.User,
 					configFile.AWSCodeCommit.Pass,
 					codecommitRepoURL,
-					repoName,
+					repoDir+repoName,
 				)
 
 				gitRepo(

@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	git "github.com/libgit2/git2go/v31"
 )
 
+// Represents the `git clone` command.
 func gitClone(user, password, url, path string) {
 	fmt.Println("Cloning", url)
 	credentialsCallback := func(url, username string, allowedTypes git.CredentialType) (*git.Credential, error) {
@@ -47,6 +49,7 @@ func gitClone(user, password, url, path string) {
 	}
 }
 
+// Represents the `git add origin remote` command
 func gitRemoteAddOriginURL(path, url string) *git.Repository {
 	var repo *git.Repository
 	var err error
@@ -60,6 +63,7 @@ func gitRemoteAddOriginURL(path, url string) *git.Repository {
 	return repo
 }
 
+// Represents the `git add` command.
 func gitAdd(repo *git.Repository) {
 	var idx *git.Index
 	var err error
@@ -77,6 +81,7 @@ func gitAdd(repo *git.Repository) {
 	}
 }
 
+// Represents the `git commit` command.
 func gitCommit(repo *git.Repository, msg, name, email string) {
 	var idx *git.Index
 	var objectId *git.Oid
@@ -112,6 +117,7 @@ func gitCommit(repo *git.Repository, msg, name, email string) {
 	}
 }
 
+//Represents the `git push` command.
 func gitPush(repo *git.Repository, repoName, user, password, branch, url string) {
 	var remote *git.Remote
 	var err error
@@ -143,8 +149,15 @@ func gitPush(repo *git.Repository, repoName, user, password, branch, url string)
 	fmt.Printf("Pushing repo %q to GitHub\n", repoName)
 }
 
+// Execute `git add remote origin; git add; git commit; git push`
 func gitRepo(url, user, pass, repoName, branch, message, author, email string, private bool) {
-	if cd := os.Chdir(repoName); cd != nil {
+	var repoDir string
+	var err error
+
+	if repoDir, err = filepath.Abs(branch); err != nil {
+		fmt.Println(err)
+	}
+	if cd := os.Chdir(repoDir + repoName); cd != nil {
 		fmt.Println(cd)
 	}
 
