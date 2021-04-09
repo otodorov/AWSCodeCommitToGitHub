@@ -43,13 +43,12 @@ func main() {
 	)
 
 	var (
-		conf    *os.File
-		pwd     string
-		dir     string
-		repoDir string
-		ch      = make(chan string)
-		wg      sync.WaitGroup
-		err     error
+		conf *os.File
+		pwd  string
+		dir  string
+		ch   = make(chan string)
+		wg   sync.WaitGroup
+		err  error
 	)
 
 	// Read config.yml file
@@ -127,8 +126,9 @@ func main() {
 				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
 
-				if repoDir, err = filepath.Abs(branch); err != nil {
-					fmt.Println(err)
+				repoDir, err := filepath.Abs(repoName)
+				if err != nil {
+					fmt.Println("Cann't get absolute path:", err)
 				}
 
 				if err := githubCreateRepo(
