@@ -13,8 +13,6 @@ func logHandler(t, e string) {
 	case "error":
 		fmt.Println("ERROR   |", e)
 	case "debug":
-		// 0 = This function
-		// 1 = Function that called this function
 		_, fn, line, _ := runtime.Caller(1)
 		fmt.Printf("DEBUG   | %s:%d | %v\n", fn, line, e)
 	}
