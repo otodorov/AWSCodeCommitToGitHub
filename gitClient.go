@@ -44,7 +44,7 @@ func gitClone(user, password, url, path string) {
 	}
 
 	if _, err := git.Clone(url, path, cloneOptions); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 		return
 	}
 }
@@ -55,10 +55,10 @@ func gitRemoteAddOriginURL(path, url string) *git.Repository {
 	var err error
 
 	if repo, err = git.InitRepository(path, false); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	if _, err = repo.Remotes.Create("origin", url); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	return repo
 }
@@ -69,15 +69,15 @@ func gitAdd(repo *git.Repository) {
 	var err error
 
 	if idx, err = repo.Index(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if err = idx.AddAll([]string{}, git.IndexAddDefault, nil); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if err = idx.Write(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 }
 
@@ -89,15 +89,15 @@ func gitCommit(repo *git.Repository, msg, name, email string) {
 	var err error
 
 	if idx, err = repo.Index(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if objectId, err = idx.WriteTreeTo(repo); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if treeId, err = repo.LookupTree(objectId); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	signature := &git.Signature{
@@ -113,7 +113,7 @@ func gitCommit(repo *git.Repository, msg, name, email string) {
 		msg+" on "+time.Now().Format("2 Jan 2006"),
 		treeId,
 	); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 }
 
@@ -141,10 +141,10 @@ func gitPush(repo *git.Repository, repoName, user, password, branch, url string)
 	}
 
 	if remote, err = repo.Remotes.Create(branch, url); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	if err = remote.Push([]string{"refs/heads/" + branch}, pushOptions); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	fmt.Printf("Pushing repo %q to GitHub\n", repoName)
 }
@@ -155,7 +155,7 @@ func gitRepo(url, user, pass, repoName, branch, message, author, email string, p
 	var err error
 
 	if repoDir, err = filepath.Abs(branch); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	if cd := os.Chdir(repoDir + repoName); cd != nil {
 		fmt.Println(cd)

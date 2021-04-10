@@ -69,13 +69,13 @@ func main() {
 	dec := yaml.NewDecoder(conf)
 	if err = dec.Decode(&configFile); err != nil {
 		fmt.Printf("Cannot read %q file. Is it empty?\n", cfgFileName)
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 		return
 	}
 
 	// Get current folder
 	if pwd, err = os.Getwd(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	// Function that return symbol used to split the string
@@ -88,12 +88,12 @@ func main() {
 
 	// Create temp dir for `git clone`
 	if dir, err = os.MkdirTemp(os.TempDir(), currentFolder+"-"); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	defer os.RemoveAll(dir)
 
 	if err := os.Chdir(dir); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	// Create connection to AWS
@@ -122,7 +122,14 @@ func main() {
 					wg.Done()
 					return
 				}
+
 				codecommitRepoURL := fmt.Sprintf(AWSURL, configFile.AWSRegion, repoName)
+
+				gitCloneRepoName := repoName  // Create test repositories
+				repoName = "test-" + repoName // Create test repositories
+				// fmt.Println("gitCloneRepoName:", gitCloneRepoName)
+				// fmt.Println("repoName:", repoName)
+
 				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
 
@@ -144,7 +151,7 @@ func main() {
 					configFile.AWSCodeCommit.User,
 					configFile.AWSCodeCommit.Pass,
 					codecommitRepoURL,
-					repoDir+repoName,
+					repoDir+gitCloneRepoName, // Create test repositories
 				)
 
 				gitRepo(
