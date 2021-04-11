@@ -34,7 +34,7 @@ type Config struct {
 
 func main() {
 	const (
-		cfgFileName string = "../AWSCodeCommitToGitHub.yml"
+		cfgFileName string = "AWSCodeCommitToGitHub.yml"
 		AWSURL      string = "https://git-codecommit.%s.amazonaws.com/v1/repos/%s"
 		GitHubURL   string = "https://github.com/%s/%s.git"
 		branch      string = "master"
@@ -153,7 +153,7 @@ func main() {
 					configFile.GitHub.Private,
 				)
 
-				if err = os.RemoveAll(repoName); err != nil {
+				if err := os.RemoveAll(repoName); err != nil {
 					logHandler("debug", err.Error())
 				}
 			}

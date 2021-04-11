@@ -9,6 +9,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Create GitHub repository
 func githubCreateRepo(gitPass, repo, desc, branch string, private bool) error {
 	var err error
 
