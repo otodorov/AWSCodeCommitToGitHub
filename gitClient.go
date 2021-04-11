@@ -154,18 +154,15 @@ func gitRepo(url, user, pass, repoName, branch, message, author, email string, p
 	var repoDir string
 	var err error
 
-	if repoDir, err = filepath.Abs(branch); err != nil {
+	if repoDir, err = filepath.Abs(repoName); err != nil {
 		logHandler("debug", err.Error())
 	}
-	if cd := os.Chdir(repoDir + repoName); cd != nil {
-		fmt.Println(cd)
+
+	if err := os.RemoveAll(repoDir + "/.git"); err != nil {
+		logHandler("debug", err.Error())
 	}
 
-	if err := os.RemoveAll(".git"); err != nil {
-		fmt.Printf("Cannot delete folder %s: %s", repoName, err)
-	}
-
-	githubRepo := gitRemoteAddOriginURL("./", url)
+	githubRepo := gitRemoteAddOriginURL(repoDir, url)
 	gitAdd(githubRepo)
 	gitCommit(githubRepo, message, author, email)
 	gitPush(githubRepo, repoName, user, pass, branch, url)

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"unicode"
@@ -35,7 +34,7 @@ type Config struct {
 
 func main() {
 	const (
-		cfgFileName string = "AWSCodeCommitToGitHub.yml"
+		cfgFileName string = "../AWSCodeCommitToGitHub.yml"
 		AWSURL      string = "https://git-codecommit.%s.amazonaws.com/v1/repos/%s"
 		GitHubURL   string = "https://github.com/%s/%s.git"
 		branch      string = "master"
@@ -54,21 +53,20 @@ func main() {
 	// Read config.yml file
 	configFile := Config{}
 	if conf, err = os.Open(cfgFileName); err != nil {
-		fmt.Printf("Cannot %s\n", err)
+		logHandler("debug", err.Error())
 		return
 	}
 
 	// Handle the configFile state
 	defer func() {
 		if err := conf.Close(); err != nil {
-			fmt.Printf("Can't close configFile: %s", err)
+			logHandler("debug", err.Error())
 		}
 	}()
 
 	// Decode the YAML file
 	dec := yaml.NewDecoder(conf)
 	if err = dec.Decode(&configFile); err != nil {
-		fmt.Printf("Cannot read %q file. Is it empty?\n", cfgFileName)
 		logHandler("debug", err.Error())
 		return
 	}
@@ -124,23 +122,12 @@ func main() {
 				}
 
 				codecommitRepoURL := fmt.Sprintf(AWSURL, configFile.AWSRegion, repoName)
-
-				gitCloneRepoName := repoName  // Create test repositories
-				repoName = "test-" + repoName // Create test repositories
-				// fmt.Println("gitCloneRepoName:", gitCloneRepoName)
-				// fmt.Println("repoName:", repoName)
-
-				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
+				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, "test-"+repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
-
-				repoDir, err := filepath.Abs(repoName)
-				if err != nil {
-					fmt.Println("Cann't get absolute path:", err)
-				}
 
 				if err := githubCreateRepo(
 					configFile.GitHub.Pass,
-					repoName,
+					"test-"+repoName,
 					*description,
 					branch,
 					configFile.GitHub.Private); err != nil {
@@ -151,7 +138,7 @@ func main() {
 					configFile.AWSCodeCommit.User,
 					configFile.AWSCodeCommit.Pass,
 					codecommitRepoURL,
-					repoDir+gitCloneRepoName, // Create test repositories
+					repoName,
 				)
 
 				gitRepo(
@@ -167,7 +154,7 @@ func main() {
 				)
 
 				if err = os.RemoveAll(repoName); err != nil {
-					fmt.Printf("Cannot delete folder %s: %s", repoName, err)
+					logHandler("debug", err.Error())
 				}
 			}
 		}()
