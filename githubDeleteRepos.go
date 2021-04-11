@@ -23,11 +23,11 @@ func githubDeleteRepos(gat string, awsRepoSlice []string) {
 	client := github.NewClient(tc)
 
 	for _, v := range awsRepoSlice {
-		_, err := client.Repositories.Delete(ctx, "otodorov", "test-"+v)
+		_, err := client.Repositories.Delete(ctx, "otodorov", v)
 		if err != nil {
-			fmt.Printf("%-10s: %s\n", "test-"+v, err)
+			fmt.Printf("%-10s: %s\n", v, err)
 		} else {
-			fmt.Printf("%-10s: deleted\n", "test-"+v)
+			fmt.Printf("%-10s: deleted\n", v)
 		}
 	}
 

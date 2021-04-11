@@ -122,12 +122,12 @@ func main() {
 				}
 
 				codecommitRepoURL := fmt.Sprintf(AWSURL, configFile.AWSRegion, repoName)
-				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, "test-"+repoName)
+				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
 
 				if err := githubCreateRepo(
 					configFile.GitHub.Pass,
-					"test-"+repoName,
+					repoName,
 					*description,
 					branch,
 					configFile.GitHub.Private); err != nil {
