@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -28,7 +27,7 @@ func awsClient(accessKey, secretKey, region string) (c context.Context, cfg aws.
 		),
 	)
 	if err != nil {
-		log.Fatal(err)
+		logHandler("debug", err.Error())
 	}
 
 	return ctx, cfg
@@ -42,7 +41,7 @@ func awsListRepositories(ctx context.Context, cfg aws.Config) []string {
 
 	client := codecommit.NewFromConfig(cfg)
 	if repo, err = client.ListRepositories(ctx, &codecommit.ListRepositoriesInput{}); err != nil {
-		log.Fatal(err)
+		logHandler("debug", err.Error())
 	}
 	for _, v := range repo.Repositories {
 		repoSlice = append(repoSlice, aws.ToString(v.RepositoryName))
@@ -60,7 +59,7 @@ func awsDescribeRepo(ctx context.Context, cfg aws.Config, repo string) *string {
 	if dr, err = client.GetRepository(ctx, &codecommit.GetRepositoryInput{
 		RepositoryName: aws.String(repo),
 	}); err != nil {
-		log.Fatal(err)
+		logHandler("debug", err.Error())
 	}
 
 	// If description is empty, add empty string instead

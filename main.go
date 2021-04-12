@@ -45,7 +45,7 @@ func main() {
 		conf *os.File
 		pwd  string
 		dir  string
-		ch   = make(chan string, 50)
+		ch   = make(chan string)
 		wg   sync.WaitGroup
 		err  error
 	)
@@ -53,27 +53,27 @@ func main() {
 	// Read config.yml file
 	configFile := Config{}
 	if conf, err = os.Open(cfgFileName); err != nil {
-		fmt.Printf("Cannot %s\n", err)
+		logHandler("debug", err.Error())
 		return
 	}
 
+	// Handle the configFile state
 	defer func() {
 		if err := conf.Close(); err != nil {
-			fmt.Printf("Can't close configFile: %s", err)
+			logHandler("debug", err.Error())
 		}
 	}()
 
 	// Decode the YAML file
 	dec := yaml.NewDecoder(conf)
 	if err = dec.Decode(&configFile); err != nil {
-		fmt.Printf("Cannot read %q file. Is it empty?\n", cfgFileName)
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 		return
 	}
 
-	// Create temp dir for `git clone`
+	// Get current folder
 	if pwd, err = os.Getwd(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	// Function that return symbol used to split the string
@@ -83,23 +83,27 @@ func main() {
 	// Split string
 	pwdS := strings.FieldsFunc(pwd, file)
 	currentFolder := pwdS[len(pwdS)-1]
+
+	// Create temp dir for `git clone`
 	if dir, err = os.MkdirTemp(os.TempDir(), currentFolder+"-"); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	defer os.RemoveAll(dir)
 
-	if cd := os.Chdir(dir); cd != nil {
-		fmt.Println(cd)
+	if err := os.Chdir(dir); err != nil {
+		logHandler("debug", err.Error())
 	}
 
+	// Create connection to AWS
 	ctx, cfg := awsClient(
 		configFile.AWSIAMAccesskeys.Access_key_id,
 		configFile.AWSIAMAccesskeys.Secret_access_key,
 		configFile.AWSRegion,
 	)
 
+	// List of all AWS CodeCommit repositories
 	awsRepoSlice := awsListRepositories(ctx, cfg)
-	// awsRepoSlice := []string{"emp_terraform_security_group"}
+	// awsRepoSlice := []string{"<repository_name>"}
 
 	// Uncomment following two lines to delete repositories defined in githubDeleteRepos.go -> awsRepoSlice
 	// githubDeleteRepos(configFile.GitHub.Pass, awsRepoSlice)
@@ -116,6 +120,7 @@ func main() {
 					wg.Done()
 					return
 				}
+
 				codecommitRepoURL := fmt.Sprintf(AWSURL, configFile.AWSRegion, repoName)
 				githubRepoURL := fmt.Sprintf(GitHubURL, configFile.GitHub.User, repoName)
 				description := awsDescribeRepo(ctx, cfg, repoName)
@@ -148,8 +153,8 @@ func main() {
 					configFile.GitHub.Private,
 				)
 
-				if err = os.RemoveAll(repoName); err != nil {
-					fmt.Printf("Cannot delete folder %s: %s", repoName, err)
+				if err := os.RemoveAll(repoName); err != nil {
+					logHandler("debug", err.Error())
 				}
 			}
 		}()

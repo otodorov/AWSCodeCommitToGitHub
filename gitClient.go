@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	git "github.com/libgit2/git2go/v31"
 )
 
+// Represents the `git clone` command.
 func gitClone(user, password, url, path string) {
 	fmt.Println("Cloning", url)
 	credentialsCallback := func(url, username string, allowedTypes git.CredentialType) (*git.Credential, error) {
@@ -42,41 +44,44 @@ func gitClone(user, password, url, path string) {
 	}
 
 	if _, err := git.Clone(url, path, cloneOptions); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 		return
 	}
 }
 
+// Represents the `git add origin remote` command
 func gitRemoteAddOriginURL(path, url string) *git.Repository {
 	var repo *git.Repository
 	var err error
 
 	if repo, err = git.InitRepository(path, false); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	if _, err = repo.Remotes.Create("origin", url); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	return repo
 }
 
+// Represents the `git add` command.
 func gitAdd(repo *git.Repository) {
 	var idx *git.Index
 	var err error
 
 	if idx, err = repo.Index(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if err = idx.AddAll([]string{}, git.IndexAddDefault, nil); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if err = idx.Write(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 }
 
+// Represents the `git commit` command.
 func gitCommit(repo *git.Repository, msg, name, email string) {
 	var idx *git.Index
 	var objectId *git.Oid
@@ -84,15 +89,15 @@ func gitCommit(repo *git.Repository, msg, name, email string) {
 	var err error
 
 	if idx, err = repo.Index(); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if objectId, err = idx.WriteTreeTo(repo); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	if treeId, err = repo.LookupTree(objectId); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 
 	signature := &git.Signature{
@@ -108,10 +113,11 @@ func gitCommit(repo *git.Repository, msg, name, email string) {
 		msg+" on "+time.Now().Format("2 Jan 2006"),
 		treeId,
 	); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 }
 
+//Represents the `git push` command.
 func gitPush(repo *git.Repository, repoName, user, password, branch, url string) {
 	var remote *git.Remote
 	var err error
@@ -135,24 +141,28 @@ func gitPush(repo *git.Repository, repoName, user, password, branch, url string)
 	}
 
 	if remote, err = repo.Remotes.Create(branch, url); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	if err = remote.Push([]string{"refs/heads/" + branch}, pushOptions); err != nil {
-		fmt.Println(err)
+		logHandler("debug", err.Error())
 	}
 	fmt.Printf("Pushing repo %q to GitHub\n", repoName)
 }
 
+// Execute `git add remote origin; git add; git commit; git push`
 func gitRepo(url, user, pass, repoName, branch, message, author, email string, private bool) {
-	if cd := os.Chdir(repoName); cd != nil {
-		fmt.Println(cd)
+	var repoDir string
+	var err error
+
+	if repoDir, err = filepath.Abs(repoName); err != nil {
+		logHandler("debug", err.Error())
 	}
 
-	if err := os.RemoveAll(".git"); err != nil {
-		fmt.Printf("Cannot delete folder %s: %s", repoName, err)
+	if err := os.RemoveAll(repoDir + "/.git"); err != nil {
+		logHandler("debug", err.Error())
 	}
 
-	githubRepo := gitRemoteAddOriginURL("./", url)
+	githubRepo := gitRemoteAddOriginURL(repoDir, url)
 	gitAdd(githubRepo)
 	gitCommit(githubRepo, message, author, email)
 	gitPush(githubRepo, repoName, user, pass, branch, url)
