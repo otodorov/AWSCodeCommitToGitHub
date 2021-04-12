@@ -4,9 +4,9 @@ Migrate AWS CodeCommit repositories to GitHub
 ## How to install
 
 1) Download one of the binary files:  
-[Windows](https://github.com/otodorov/AWSCodeCommitToGitHub/releases/download/v1.0.0/AWSCodeCommitToGitHub_windows_386.exe)  
-[Linux](https://github.com/otodorov/AWSCodeCommitToGitHub/releases/download/v1.0.0/AWSCodeCommitToGitHub_linux_386.bin)  
-[MacOS](https://github.com/otodorov/AWSCodeCommitToGitHub/releases/download/v1.0.0/AWSCodeCommitToGitHub_drawin_amd64.bin)  
+[Windows](https://github.com/otodorov/AWSCodeCommitToGitHub/releases/download/v1.0.1/AWSCodeCommitToGitHub_windows_386.exe)  
+[Linux](https://github.com/otodorov/AWSCodeCommitToGitHub/releases/download/v1.0.1/AWSCodeCommitToGitHub_linux_386.bin)  
+[MacOS](https://github.com/otodorov/AWSCodeCommitToGitHub/releases/download/v1.0.1/AWSCodeCommitToGitHub_drawin_amd64.bin)  
 
 2) Create and save a configuration file called `AWSCodeCommitToGitHub.yml` similar to this [AWSCodeCommitToGitHub.yml](./AWSCodeCommitToGitHub.yml)
 Both the binary and the configuration file have to be placed in the same location.
