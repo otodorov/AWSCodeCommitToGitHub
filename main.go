@@ -103,7 +103,7 @@ func main() {
 
 	// List of all AWS CodeCommit repositories
 	awsRepoSlice := awsListRepositories(ctx, cfg)
-	// awsRepoSlice := []string{"emp_terraform_security_group"}
+	// awsRepoSlice := []string{"<repository_name>"}
 
 	// Uncomment following two lines to delete repositories defined in githubDeleteRepos.go -> awsRepoSlice
 	// githubDeleteRepos(configFile.GitHub.Pass, awsRepoSlice)
